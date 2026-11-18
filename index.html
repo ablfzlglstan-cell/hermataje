@@ -67,7 +67,17 @@ main{max-width:1320px;margin:18px auto;padding:0 18px}
 @media(max-width:900px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.catalog-layout{grid-template-columns:190px minmax(0,1fr)}.mega-search-row{grid-template-columns:1fr auto}.mega-cats{display:none}.header-links button:first-child{display:none}}
 @media(max-width:650px){main{padding:0 10px;margin:10px auto}.topbar{padding:8px 12px}.mega-search-row{padding:0 12px 10px;grid-template-columns:minmax(0,1fr) auto;gap:8px}.mega-search{grid-column:1;grid-row:1}.header-links{grid-column:2;grid-row:1}.header-links button{font-size:11px;padding:9px 8px}.main-nav{padding:0 12px 9px;gap:17px}.main-nav button{font-size:11px}.hero-new{border-radius:14px}.benefits article{min-height:90px}.featured-section,#productsSection,.slider-wrap,.bottom-info{padding:12px;margin:12px 0}.catalog-toolbar{align-items:flex-start;flex-direction:column}.catalog-tools{width:100%;justify-content:space-between}.filter-toggle{display:block}.catalog-layout{display:block}.catalog-sidebar{display:none;position:static;margin-bottom:12px}.catalog-sidebar.show{display:block}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.product{padding:8px}.pic{height:135px}.product .info h3{font-size:12px;min-height:44px}.price{font-size:14px}.product .btn{font-size:11px;padding:9px 5px}.product-actions button{font-size:10px;padding:6px 3px}.detail-layout{grid-template-columns:1fr}.detail-image{height:220px}.compare-bar{max-width:94vw;white-space:normal;font-size:12px;gap:7px}.bottom-info{grid-template-columns:1fr}}
 
-</style></head><body>
+</style>
+<meta name="theme-color" content="#e83e86">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="هرمیتاژ">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+
+</head><body>
 <header>
   <div class="topbar">
     <div class="quick-actions">
@@ -81,7 +91,7 @@ main{max-width:1320px;margin:18px auto;padding:0 18px}
   <div class="mega-search-row">
     <div class="mega-cats"><button type="button" onclick="document.getElementById('productsSection').scrollIntoView({behavior:'smooth'})">☰ دسته‌بندی کالاها</button></div>
     <div class="mega-search"><span>⌕</span><input id="search" class="search" placeholder="جستجو در محصولات هرمیتاژ؛ مثلاً کاشت ناخن، ژل، پودر..." oninput="render();showSuggestions()" onfocus="showSuggestions()"><button type="button" onclick="clearSearch()">×</button><div id="searchSuggestions" class="search-suggestions"></div></div>
-    <div class="header-links"><button onclick="openAccount()">ورود / ثبت‌نام</button><button onclick="openCart()">سبد خرید <span id="cartCountHeader" class="count">۰</span></button></div>
+    <div class="header-links"><button onclick="openAccount()">ورود / ثبت‌نام</button><button onclick="openCart()">سبد خرید <span id="cartCount" class="count">۰</span></button></div>
   </div>
   <nav class="main-nav"><a class="active" href="#home">صفحه اصلی</a><a href="#productsSection">همه محصولات</a><a href="#featuredSection">پیشنهادهای ویژه</a><a href="#about">درباره ما</a><a href="#contact">تماس با ما</a><button id="accountBtn" onclick="openAccount()">حساب کاربری</button><button onclick="openAdmin()">مدیریت</button></nav>
 </header>
@@ -200,9 +210,21 @@ render = function(){
  else if(sort==='newest')list.sort((a,b)=>Number(b.id)-Number(a.id));
  document.getElementById('productCount').textContent=list.length.toLocaleString('fa-IR')+' محصول';
  document.getElementById('products').innerHTML=list.length?list.map(p=>`<article class="product"><div class="pic" onclick="openProduct(${p.id})" style="cursor:pointer">${p.image?`<img src="${p.image}" alt="${esc(p.name)}">`:(p.emoji||'💅')}</div><div class="info"><h3 onclick="openProduct(${p.id})" style="cursor:pointer">${esc(p.name)}</h3><div class="desc">${esc(p.desc||'')}</div><div class="price">${money(p.price)}</div><button class="btn" onclick="addCart(${p.id})">افزودن به سبد</button><div class="product-actions"><button class="${favorites.has(p.id)?'active':''}" onclick="toggleFavorite(${p.id})">${favorites.has(p.id)?'♥ ذخیره شد':'♡ علاقه‌مندی'}</button><button class="${compareItems.includes(p.id)?'active':''}" onclick="toggleCompare(${p.id})">⇄ مقایسه</button></div></div></article>`).join(''):'<div class="empty">محصولی پیدا نشد.</div>';
- const cartTotalCount=Object.values(cart).reduce((a,b)=>a+b,0).toLocaleString('fa-IR');document.getElementById('cartCount').textContent=cartTotalCount;const headerCount=document.getElementById('cartCountHeader');if(headerCount)headerCount.textContent=cartTotalCount;
+ document.getElementById('cartCount').textContent=Object.values(cart).reduce((a,b)=>a+b,0).toLocaleString('fa-IR');
 };
 document.addEventListener('click',e=>{if(!e.target.closest('.mega-search'))hideSuggestions()});
-render();
 
-</script></body></html>
+</script>
+<script>
+/* Hermitage PWA registration */
+(function(){
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('/sw.js', {scope:'/'})
+        .catch(function(err){ console.warn('PWA service worker:', err); });
+    });
+  }
+})();
+</script>
+
+</body></html>
