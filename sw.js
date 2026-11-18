@@ -1,35 +1,51 @@
-const CACHE_NAME = "hermitage-shell-v1";
-const APP_SHELL = ["/", "/manifest.json", "/icons/icon-192.png", "/icons/icon-512.png"];
-self.addEventListener("install", event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));
-  self.skipWaiting();
+const CACHE_NAME = 'hermitage-pwa-v2';
+const APP_SHELL = ['/', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/icon-512-maskable.png'];
+
+self.addEventListener('install', event => {
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    await cache.addAll(APP_SHELL);
+    await self.skipWaiting();
+  })());
 });
-self.addEventListener("activate", event => {
-  event.waitUntil(
-    caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))
-  );
-  self.clients.claim();
+
+self.addEventListener('activate', event => {
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter(key => key.startsWith('hermitage-pwa-') && key !== CACHE_NAME).map(key => caches.delete(key)));
+    await self.clients.claim();
+  })());
 });
-self.addEventListener("fetch", event => {
-  const req = event.request;
-  const url = new URL(req.url);
-  if (req.method !== "GET" || url.origin !== self.location.origin) return;
-  // Keep API and admin/customer data live; never cache database/API responses.
-  if (url.pathname.startsWith("/api/")) return;
-  if (req.mode === "navigate") {
-    event.respondWith(fetch(req).then(response => {
-      if (response.ok) caches.open(CACHE_NAME).then(cache => cache.put("/", response.clone()));
-      return response;
-    }).catch(() => caches.match("/") ));
+
+self.addEventListener('fetch', event => {
+  const request = event.request;
+  const url = new URL(request.url);
+  if (request.method !== 'GET' || url.origin !== self.location.origin) return;
+  // Never cache API responses, customer data, orders, or admin endpoints.
+  if (url.pathname.startsWith('/api/')) return;
+  if (request.mode === 'navigate') {
+    event.respondWith((async () => {
+      try {
+        const response = await fetch(request);
+        if (response && response.ok) {
+          const cache = await caches.open(CACHE_NAME);
+          await cache.put('/', response.clone());
+        }
+        return response;
+      } catch (_) {
+        return (await caches.match('/')) || Response.error();
+      }
+    })());
     return;
   }
-  event.respondWith(
-    caches.match(req).then(cached => cached || fetch(req).then(response => {
-      if (response.ok) {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
-      }
-      return response;
-    }))
-  );
+  event.respondWith((async () => {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+    const response = await fetch(request);
+    if (response && response.ok && response.type === 'basic') {
+      const cache = await caches.open(CACHE_NAME);
+      cache.put(request, response.clone());
+    }
+    return response;
+  })());
 });
