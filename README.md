@@ -1,22 +1,22 @@
-# هرمیتاژ - حساب مشتری و سفارش‌ها
+# HERMITAGE Store – customer accounts fix
 
-## تغییرات
-- دکمه ورود به حساب در سربرگ
-- ثبت‌نام و ورود مشتری با شماره تماس و رمز عبور
-- نام، شماره تماس و آدرس در ثبت‌نام الزامی؛ سال تولد اختیاری با توضیح تخفیف تولد
-- امکان سفارش مهمان بدون ثبت‌نام
-- کد پستی ۱۰ رقمی در همه سفارش‌ها الزامی
-- مشتری واردشده می‌تواند آدرس ذخیره‌شده یا آدرس جدید را برای سفارش انتخاب کند
-- سفارش‌ها در D1 ذخیره می‌شوند و در پنل مدیر نمایش داده می‌شوند
-- ورود مدیر با همان ADMIN_USERS و نشست ۸ ساعته
+## Files
+- `index.html`: storefront, customer login/register, guest checkout, password visibility and birth date fields.
+- `worker.js`: API for admin/customer sessions, catalog state and orders.
+- `schema.sql`: full schema for a fresh D1 database.
+- `migration.sql`: run ONCE on the existing database created with the previous schema. Adds birth month/day columns without deleting data.
+- `wrangler.toml`: existing Worker + D1 + Assets configuration.
 
-## مهم: یک‌بار اجرای SQL
-Cloudflare > D1 > hermitage-db > Console را باز کن و تمام محتوای `schema.sql` را اجرا کن. این دستورها جدول‌های جدید را اضافه می‌کنند و جدول `site_state` موجود را حذف نمی‌کنند.
+## Existing D1 database upgrade
+Because the existing database already has `customers` and `orders`, running `schema.sql` again will not add the new birth date columns. Open D1 > hermitage-db > Console and run the four statements in `migration.sql` once. Do not run them a second time.
 
-## تنظیمات قبلی حفظ شود
-- `SESSION_SECRET` به صورت Secret
-- `ADMIN_USERS` به صورت JSON (همان فهرست مدیرهای فعلی)
-- D1 binding با نام `DB`
-- Assets binding با نام `ASSETS`
+## Worker secrets
+Keep both as Worker **Secrets** in the Production environment (not `[vars]` in wrangler.toml):
+- `SESSION_SECRET`: random secret text, at least 32 characters.
+- `ADMIN_USERS`: the following JSON text (replace credentials):
+  `[{"username":"nima","password":"REPLACE_WITH_A_NEW_LONG_PASSWORD"}]`
 
-بعد فایل‌های ZIP را جایگزین فایل‌های GitHub کن تا Build و Deploy اجرا شود. ثبت سفارش در این نسخه سفارش را با وضعیت «در انتظار بررسی» ذخیره می‌کند؛ درگاه پرداخت هنوز متصل نشده است.
+Do not put either secret in GitHub or wrangler.toml. Dashboard Worker Secrets persist across deployments when they are not redefined as plain vars in the Wrangler config. Use the same variable names exactly.
+
+## Deploy
+Replace the repository files with these files and let Cloudflare Worker Builds deploy. Verify the deployment is successful before testing.
