@@ -10,4 +10,4 @@ run_worker_first = true
 [[d1_databases]]
 binding = "DB"
 database_name = "hermitage-db"
-database_id = "PASTE_D1_DATABASE_ID_HERE"
+database_id = "1ba07b90-a9ab-4043-9e11-616da9692c05"
