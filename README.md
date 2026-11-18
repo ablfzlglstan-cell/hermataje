@@ -17,7 +17,7 @@
 4. پروژه را در یک محیط دارای Wrangler با دستور `npx wrangler deploy` مستقر کن. قبلش `wrangler.toml` را با شناسه واقعی دیتابیس تکمیل کن.
 5. در تنظیمات Worker بخش **Settings → Variables and Secrets** این دو مقدار را به‌صورت Secret اضافه کن:
    - `SESSION_SECRET`: یک رشته تصادفی طولانی و محرمانه (حداقل ۳۲ کاراکتر).
-   - `ADMIN_USERS`: آرایه JSON حساب مدیرها، نمونه: `[ {"username":"nima","password":"رمز-قوی-و-منحصربه‌فرد"} ]`
+   - `ADMIN_USERS`: متغیر با نوع JSON و مقدار آرایه حساب مدیرها (کد هم مقدار JSON و هم متن JSON را می‌پذیرد)، نمونه: `[ {"username":"nima","password":"رمز-قوی-و-منحصربه‌فرد"} ]`
 6. در Worker باید D1 binding با نام دقیق `DB` و Assets binding با نام دقیق `ASSETS` فعال باشند؛ فایل `wrangler.toml` این bindingها را تعریف می‌کند.
 
 ## امنیت و امکانات
