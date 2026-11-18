@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f8e9ef">
+<title>HERMITAGE | هرمیتاژ</title>
+<style>
+:root{--pink:#c96f91;--deep:#633b4c;--cream:#fff9fb;--gold:#b99a62;--ink:#382b31;--muted:#8e7b83;--line:#f0dce4}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:Tahoma,Arial,sans-serif}button,input,select{font:inherit}button{cursor:pointer}
+header{background:linear-gradient(120deg,#f8e7ee,#fff9fb 65%,#f3e3d7);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.top{max-width:1120px;margin:auto;padding:17px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-family:Georgia,serif;font-size:25px;letter-spacing:3px;color:var(--deep);font-weight:bold}.brand small{display:block;font:11px Tahoma;letter-spacing:4px;text-align:center;color:var(--gold);margin-top:4px}
+.actions{display:flex;gap:8px}.btn{border:0;border-radius:13px;padding:11px 15px;background:var(--pink);color:white;font-weight:bold}.btn.light{background:white;color:var(--deep);border:1px solid var(--line)}.btn.dark{background:var(--deep)}
+main{max-width:1120px;margin:auto;padding:22px 18px 60px}
+.hero{border-radius:25px;padding:35px 28px;background:linear-gradient(115deg,#f1d9e2,#fff8f9 62%,#ead9c8);min-height:205px;display:flex;align-items:center;justify-content:space-between;gap:20px;overflow:hidden}
+.hero h1{font-size:clamp(25px,5vw,40px);color:var(--deep);margin:0 0 12px}.hero p{color:#765c67;line-height:2;margin:0}.hero-mark{font:italic 54px Georgia;color:#b98b9d;opacity:.7}
+.tools{display:flex;gap:10px;margin:22px 0;flex-wrap:wrap}.search{flex:1;min-width:190px;border:1px solid var(--line);border-radius:13px;padding:12px 14px;background:white;outline:none}
+.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{border:1px solid var(--line);background:white;color:var(--deep);border-radius:30px;padding:10px 15px}.chip.active{background:var(--deep);color:white}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:26px 0 14px}.section-head h2{font-size:20px;margin:0;color:var(--deep)}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.product{background:white;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 5px 20px #6a3c4b0a}
+.pic{height:155px;background:linear-gradient(135deg,#f8eaf0,#f5eee8);display:grid;place-items:center;font-size:48px;color:#b77e95}
+.info{padding:14px}.info h3{font-size:15px;margin:0 0 9px}.desc{font-size:12px;color:var(--muted);min-height:30px;line-height:1.8}.price{font-weight:bold;color:var(--deep);margin:12px 0}.info .btn{width:100%}
+.empty{padding:35px;text-align:center;color:var(--muted);background:white;border:1px dashed var(--line);border-radius:18px;grid-column:1/-1}
+footer{text-align:center;color:var(--muted);padding:25px;border-top:1px solid var(--line);font-size:12px}
+.overlay{position:fixed;inset:0;background:#24151dcc;z-index:10;display:none;align-items:center;justify-content:center;padding:15px}.modal{background:white;border-radius:20px;width:min(560px,100%);max-height:90vh;overflow:auto;padding:20px}.modal h2{margin:0 0 15px;color:var(--deep)}.modal-head{display:flex;justify-content:space-between;align-items:center}.x{border:0;background:#f8edf1;border-radius:10px;padding:7px 11px}
+.cart-row,.admin-row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.qty{display:flex;align-items:center;gap:8px}.qty button{border:1px solid var(--line);background:#fff7fa;border-radius:8px;padding:4px 9px}
+.field{display:grid;gap:6px;margin:10px 0}.field input,.field select{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:white}
+.total{font-weight:bold;color:var(--deep);font-size:18px;margin:16px 0}.admin-note{font-size:12px;line-height:1.9;color:#8a6877;background:#fff5f8;padding:10px;border-radius:10px}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-mark{display:none}}
+@media(max-width:470px){.grid{grid-template-columns:1fr 1fr;gap:9px}.pic{height:115px}.info{padding:10px}.info h3{font-size:13px}.info .btn{font-size:12px;padding:9px 5px}.top{padding:12px}.brand{font-size:20px}.actions .btn{padding:9px 10px;font-size:12px}.hero{padding:25px 19px}.hero p{font-size:13px}}
+</style>
+</head>
+<body>
+<header><div class="top">
+  <div class="brand">HERMITAGE<small>NAIL SUPPLIES</small></div>
+  <div class="actions"><button class="btn light" onclick="openAdmin()">مدیریت</button><button class="btn dark" onclick="openCart()">سبد خرید <span id="cartCount">۰</span></button></div>
+</div></header>
+<main>
+<section class="hero"><div><h1>زیبایی، از جزئیات شروع می‌شود</h1><p>فروشگاه تخصصی لوازم کاشت و طراحی ناخن<br>انتخابی حرفه‌ای برای زیبایی ماندگار</p></div><div class="hero-mark">HERMITAGE</div></section>
+<div class="tools"><input id="search" class="search" placeholder="جست‌وجوی محصولات..." oninput="render()"><div class="chips" id="categories"></div></div>
+<div class="section-head"><h2>محصولات فروشگاه</h2><span id="productCount" style="font-size:12px;color:#987f89"></span></div>
+<section class="grid" id="products"></section>
+</main>
+<footer>HERMITAGE · هرمیتاژ | فروشگاه تخصصی لوازم ناخن</footer>
+
+<div class="overlay" id="cartModal"><div class="modal"><div class="modal-head"><h2>سبد خرید</h2><button class="x" onclick="closeModal('cartModal')">بستن</button></div><div id="cartItems"></div><div class="total" id="cartTotal"></div><button class="btn" style="width:100%" onclick="checkout()">ثبت سفارش</button></div></div>
+<div class="overlay" id="adminModal"><div class="modal"><div class="modal-head"><h2>مدیریت فروشگاه</h2><button class="x" onclick="closeModal('adminModal')">بستن</button></div>
+<p class="admin-note">این نسخه اولیه است؛ تغییرات محصولات فقط در همین مرورگر ذخیره می‌شود و پنل هنوز ورود امن و دیتابیس آنلاین ندارد. برای فروش واقعی باید در مرحله بعد پنل امن و ثبت سفارش سروری وصل کنیم.</p>
+<div class="field"><label>نام محصول</label><input id="pName" placeholder="مثلاً پودر کاشت ناخن"></div>
+<div class="field"><label>قیمت (تومان)</label><input id="pPrice" type="number" placeholder="185000"></div>
+<div class="field"><label>دسته‌بندی</label><select id="pCat"><option>مواد کاشت</option><option>ابزار</option><option>دستگاه</option></select></div>
+<div class="field"><label>توضیح کوتاه</label><input id="pDesc" placeholder="توضیح محصول"></div>
+<button class="btn" onclick="addProduct()" style="width:100%">افزودن محصول</button>
+<div class="section-head"><h2>مدیریت محصولات</h2></div><div id="adminList"></div>
+</div></div>
+<script>
+const initial=[
+{id:1,name:"پودر کاشت ناخن کلیر",price:185000,cat:"مواد کاشت",desc:"پودر شفاف مناسب کاشت حرفه‌ای",emoji:"🫙"},
+{id:2,name:"ژل بیلدر صورتی",price:245000,cat:"مواد کاشت",desc:"ژل بیلدر با رنگ صورتی ملایم",emoji:"💗"},
+{id:3,name:"دستگاه UV LED",price:890000,cat:"دستگاه",desc:"دستگاه خشک‌کن ژل ناخن",emoji:"💡"},
+{id:4,name:"سوهان برقی ناخن",price:1250000,cat:"دستگاه",desc:"مناسب استفاده حرفه‌ای",emoji:"⚙️"},
+{id:5,name:"قلم کاشت ناخن",price:165000,cat:"ابزار",desc:"قلم کاربردی برای موادگذاری دقیق",emoji:"🖌️"},
+{id:6,name:"تاپ ژل براق",price:195000,cat:"مواد کاشت",desc:"پوشش نهایی با جلوه براق",emoji:"✨"}
+];
+let products=JSON.parse(localStorage.getItem("hermitage_products")||"null")||initial;
+let cart=JSON.parse(localStorage.getItem("hermitage_cart")||"{}");
+let active="همه";
+const money=n=>Number(n).toLocaleString("fa-IR")+" تومان";
+function save(){localStorage.setItem("hermitage_products",JSON.stringify(products));localStorage.setItem("hermitage_cart",JSON.stringify(cart))}
+function renderCats(){let cats=["همه",...new Set(products.map(p=>p.cat))];document.getElementById("categories").innerHTML=cats.map(c=>`<button class="chip ${active===c?"active":""}" onclick="active='${c}';render()">${c}</button>`).join("")}
+function render(){renderCats();let q=document.getElementById("search").value.trim().toLowerCase();let list=products.filter(p=>(active==="همه"||p.cat===active)&&p.name.toLowerCase().includes(q));document.getElementById("productCount").textContent=list.length+" محصول";document.getElementById("products").innerHTML=list.length?list.map(p=>`<article class="product"><div class="pic">${p.emoji||"💅"}</div><div class="info"><h3>${esc(p.name)}</h3><div class="desc">${esc(p.desc||"")}</div><div class="price">${money(p.price)}</div><button class="btn" onclick="addCart(${p.id})">افزودن به سبد</button></div></article>`).join(""):'<div class="empty">محصولی پیدا نشد.</div>';document.getElementById("cartCount").textContent=Object.values(cart).reduce((a,b)=>a+b,0).toLocaleString("fa-IR")}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function addCart(id){cart[id]=(cart[id]||0)+1;save();render();openCart()}
+function openCart(){document.getElementById("cartModal").style.display="flex";renderCart()}
+function renderCart(){let rows=Object.entries(cart).filter(([id,n])=>n>0).map(([id,n])=>({p:products.find(p=>p.id==id),n})).filter(x=>x.p);document.getElementById("cartItems").innerHTML=rows.length?rows.map(({p,n})=>`<div class="cart-row"><div><b>${esc(p.name)}</b><div style="font-size:12px;color:#967f89">${money(p.price)}</div></div><div class="qty"><button onclick="changeQty(${p.id},-1)">−</button>${n.toLocaleString("fa-IR")}<button onclick="changeQty(${p.id},1)">+</button></div></div>`).join(""):"سبد خریدت خالیه.";let total=rows.reduce((s,x)=>s+x.p.price*x.n,0);document.getElementById("cartTotal").textContent="مجموع: "+money(total)}
+function changeQty(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];save();render();renderCart()}
+function checkout(){let rows=Object.entries(cart).map(([id,n])=>({p:products.find(p=>p.id==id),n})).filter(x=>x.p);if(!rows.length){alert("سبد خرید خالیه.");return}let total=rows.reduce((s,x)=>s+x.p.price*x.n,0);let msg="سفارش هرمیتاژ%0A"+rows.map(x=>encodeURIComponent(x.p.name+" × "+x.n)).join("%0A")+"%0Aمجموع: "+encodeURIComponent(money(total));alert("سفارش شما آماده است. برای فعال‌سازی ثبت آنلاین سفارش، باید شماره واتساپ یا درگاه پرداخت فروشگاه در نسخه نهایی تنظیم شود.");}
+function openAdmin(){document.getElementById("adminModal").style.display="flex";renderAdmin()}
+function renderAdmin(){document.getElementById("adminList").innerHTML=products.map(p=>`<div class="admin-row"><span>${esc(p.name)}<br><small>${money(p.price)}</small></span><button class="x" onclick="delProduct(${p.id})">حذف</button></div>`).join("")||"محصولی ثبت نشده."}
+function addProduct(){let name=document.getElementById("pName").value.trim(),price=Number(document.getElementById("pPrice").value),cat=document.getElementById("pCat").value,desc=document.getElementById("pDesc").value.trim();if(!name||!price||price<1){alert("نام و قیمت معتبر وارد کن.");return}products.push({id:Date.now(),name,price,cat,desc,emoji:"💅"});save();["pName","pPrice","pDesc"].forEach(id=>document.getElementById(id).value="");render();renderAdmin()}
+function delProduct(id){if(!confirm("این محصول حذف شود؟"))return;products=products.filter(p=>p.id!==id);delete cart[id];save();render();renderAdmin()}
+function closeModal(id){document.getElementById(id).style.display="none"}
+render();
+</script>
+</body></html>
