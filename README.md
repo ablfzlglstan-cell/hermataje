@@ -3,7 +3,7 @@
 این نسخه، ظاهر و قابلیت‌های فعلی فروشگاه را حفظ می‌کند و پنل مدیریت را به API سمت سرور وصل می‌کند. احراز هویت در Worker انجام می‌شود؛ اطلاعات مدیرها داخل فایل HTML یا مخزن GitHub قرار نمی‌گیرد.
 
 ## فایل‌ها
-- `public/index.html` فایل سایت
+- `index.html` فایل سایت (در ریشه مخزن)
 - `worker.js` API ورود مدیر و ذخیره محصولات/اسلایدر
 - `schema.sql` ساخت جدول D1
 - `wrangler.toml` تنظیمات استقرار
@@ -13,7 +13,7 @@
 
 1. در Cloudflare برو به **Workers & Pages → D1 SQL Database → Create database** و نام `hermitage-db` را انتخاب کن.
 2. در دیتابیس، بخش **Console**، محتوای `schema.sql` را اجرا کن.
-3. شناسه دیتابیس را کپی کن و در `wrangler.toml` به‌جای `PASTE_D1_DATABASE_ID_HERE` قرار بده.
+3. شناسه دیتابیس از قبل در `wrangler.toml` وارد شده است؛ اگر دیتابیس دیگری ساختی، فقط همان شناسه را جایگزین کن.
 4. پروژه را در یک محیط دارای Wrangler با دستور `npx wrangler deploy` مستقر کن. قبلش `wrangler.toml` را با شناسه واقعی دیتابیس تکمیل کن.
 5. در تنظیمات Worker بخش **Settings → Variables and Secrets** این دو مقدار را به‌صورت Secret اضافه کن:
    - `SESSION_SECRET`: یک رشته تصادفی طولانی و محرمانه (حداقل ۳۲ کاراکتر).
