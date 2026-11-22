@@ -67,6 +67,42 @@ main{max-width:1320px;margin:18px auto;padding:0 18px}
 @media(max-width:900px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.catalog-layout{grid-template-columns:190px minmax(0,1fr)}.mega-search-row{grid-template-columns:1fr auto}.mega-cats{display:none}.header-links button:first-child{display:none}}
 @media(max-width:650px){main{padding:0 10px;margin:10px auto}.topbar{padding:8px 12px}.mega-search-row{padding:0 12px 10px;grid-template-columns:minmax(0,1fr) auto;gap:8px}.mega-search{grid-column:1;grid-row:1}.header-links{grid-column:2;grid-row:1}.header-links button{font-size:11px;padding:9px 8px}.main-nav{padding:0 12px 9px;gap:17px}.main-nav button{font-size:11px}.hero-new{border-radius:14px}.benefits article{min-height:90px}.featured-section,#productsSection,.slider-wrap,.bottom-info{padding:12px;margin:12px 0}.catalog-toolbar{align-items:flex-start;flex-direction:column}.catalog-tools{width:100%;justify-content:space-between}.filter-toggle{display:block}.catalog-layout{display:block}.catalog-sidebar{display:none;position:static;margin-bottom:12px}.catalog-sidebar.show{display:block}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.product{padding:8px}.pic{height:135px}.product .info h3{font-size:12px;min-height:44px}.price{font-size:14px}.product .btn{font-size:11px;padding:9px 5px}.product-actions button{font-size:10px;padding:6px 3px}.detail-layout{grid-template-columns:1fr}.detail-image{height:220px}.compare-bar{max-width:94vw;white-space:normal;font-size:12px;gap:7px}.bottom-info{grid-template-columns:1fr}}
 
+
+/* Hermitage mobile app navigation and account polish */
+:root{scroll-padding-bottom:90px}
+body{padding-bottom:78px}
+.bottom-nav{position:fixed;z-index:30;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;padding:8px 7px calc(8px + env(safe-area-inset-bottom));background:#fffdfef2;border-top:1px solid #f0dfe7;box-shadow:0 -6px 24px #57334412;backdrop-filter:blur(16px)}
+.bottom-nav button{border:0;background:transparent;color:#927e87;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;padding:3px 0;font-size:10px;font-weight:700}
+.bottom-nav button .nav-ico{font-size:21px;line-height:1.2}
+.bottom-nav button.active{color:#c52c76}
+.bottom-nav .nav-count{display:inline-grid;place-items:center;min-width:16px;height:16px;border-radius:20px;background:#d62d7c;color:#fff;font-size:9px;margin-right:-7px;vertical-align:top}
+#accountModal .modal{background:linear-gradient(180deg,#fff 0%,#fffafd 100%);border:1px solid #f1e2e9;box-shadow:0 18px 55px #46223524}
+#accountModal .modal-head{padding-bottom:12px;border-bottom:1px solid #f4e8ed}
+#customerProfile{display:grid;gap:14px}
+#profileSummary{border-radius:18px;background:linear-gradient(120deg,#fff0f6,#fae6ef);padding:18px!important;line-height:2.1;font-size:14px}
+#customerProfile .order-card{border:1px solid #f0e2e9;border-radius:18px;padding:17px;background:#fff;box-shadow:0 5px 18px #5733440a}
+#customerProfile .section-head{margin:8px 0}
+#customerOrders{display:grid;gap:10px}
+#customerOrders .order-card{display:grid;gap:9px}
+#customerOrders .order-card button{justify-self:start}
+.account-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.account-tabs button{flex:1;min-width:105px}
+.review-area{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.review-summary{display:flex;align-items:center;gap:12px;background:#fff6fa;border:1px solid #f1e0e8;border-radius:15px;padding:13px;margin:12px 0}
+.review-score{font-size:28px;font-weight:900;color:#9b285d}
+.stars{color:#e6a52c;letter-spacing:2px;white-space:nowrap}
+.review-card{padding:13px 0;border-bottom:1px solid #f2e7ec}
+.review-card p{margin:8px 0;line-height:1.9;font-size:13px}
+.review-meta{font-size:11px;color:var(--muted)}
+.star-picker{display:flex;gap:7px;direction:ltr;justify-content:flex-end}
+.star-picker button{border:0;background:#fff4e2;color:#d49a2d;border-radius:9px;padding:7px 10px;font-size:22px}
+.star-picker button.selected{background:#ffedc4;color:#e09a12}
+.review-form{background:#fff9fc;border:1px solid #f0e0e8;border-radius:15px;padding:14px;margin-top:14px}
+.review-form textarea{width:100%;min-height:85px;border:1px solid var(--line);border-radius:11px;padding:12px;margin:10px 0;resize:vertical}
+.product-rating{font-size:12px;color:#8b6d25;margin:8px 0}
+@media(min-width:761px){.bottom-nav{max-width:620px;left:50%;right:auto;transform:translateX(-50%);border:1px solid #f0dfe7;border-bottom:0;border-radius:18px 18px 0 0}}
+@media(max-width:480px){body{padding-bottom:78px}.bottom-nav button{font-size:9px}.bottom-nav button .nav-ico{font-size:20px}}
+
 </style>
 <meta name="theme-color" content="#e83e86">
 <meta name="mobile-web-app-capable" content="yes">
@@ -108,6 +144,15 @@ main{max-width:1320px;margin:18px auto;padding:0 18px}
   <section id="productsSection"><div class="section-head"><h2>تمام محصولات</h2><span id="productCount" class="product-count"></span></div><div class="catalog-toolbar"><div class="catalog-title"><b>خرید لوازم تخصصی ناخن</b><small>محصول موردنظرت رو پیدا کن</small></div><div class="catalog-tools"><label for="sortProducts">مرتب‌سازی:</label><select id="sortProducts" onchange="render()"><option value="popular">پیشنهاد هرمیتاژ</option><option value="cheap">ارزان‌ترین</option><option value="expensive">گران‌ترین</option><option value="newest">جدیدترین</option></select><button class="filter-toggle" onclick="toggleFilters()">فیلترها</button></div></div><div class="catalog-layout"><aside class="catalog-sidebar"><b>دسته‌بندی کالاها</b><div id="sideCategories"></div><hr><b>محدوده قیمت</b><label>از (تومان)<input id="minPrice" type="number" min="0" placeholder="۰" oninput="render()"></label><label>تا (تومان)<input id="maxPrice" type="number" min="0" placeholder="بدون محدودیت" oninput="render()"></label><button class="clear-filters" onclick="clearFilters()">حذف فیلترها</button></aside><div class="catalog-content"><div class="chips" id="categories"></div><div class="chips" id="categories"></div><section class="grid" id="products"></section></div></div></section>
   <section class="bottom-info" id="about"><div><span class="eyebrow">ABOUT HERMITAGE</span><h2>زیبایی در جزئیات است</h2><p>هرمیتاژ، همراه انتخاب‌های حرفه‌ای برای کاشت و طراحی ناخن.</p></div><div id="contact"><b>ارتباط با هرمیتاژ</b><p>برای راهنمایی خرید و پیگیری سفارش از بخش حساب کاربری و سفارش‌ها استفاده کن.</p><button class="btn light" onclick="openAccount()">پیگیری سفارش</button></div></section>
 </main><footer>♛ HERMITAGE · هرمیتاژ <span>فروشگاه تخصصی لوازم کاشت و طراحی ناخن</span></footer>
+
+<nav class="bottom-nav" aria-label="منوی اصلی موبایل">
+ <button id="bottomHome" class="active" onclick="bottomGo('home')"><span class="nav-ico">⌂</span><span>خانه</span></button>
+ <button id="bottomProducts" onclick="bottomGo('products')"><span class="nav-ico">▦</span><span>دسته‌ها</span></button>
+ <button id="bottomCart" onclick="bottomGo('cart')"><span class="nav-ico">🛒<i id="bottomCartCount" class="nav-count">0</i></span><span>سبد خرید</span></button>
+ <button id="bottomFavorites" onclick="bottomGo('favorites')"><span class="nav-ico">♡</span><span>علاقه‌مندی</span></button>
+ <button id="bottomAccount" onclick="bottomGo('account')"><span class="nav-ico">♙</span><span>حساب من</span></button>
+</nav>
+
 <div class="overlay" id="productModal"><div class="modal product-detail-modal"><div class="modal-head"><h2>جزئیات محصول</h2><button class="x" onclick="closeModal('productModal')">بستن</button></div><div id="productDetail"></div></div></div>
 <div id="compareBar" class="compare-bar hidden"><span id="compareText"></span><button onclick="showCompare()">مقایسه</button><button onclick="clearCompare()">پاک کردن</button></div>
 <div class="overlay" id="cartModal"><div class="modal"><div class="modal-head"><h2>سبد خرید و سفارش‌ها</h2><button class="x" onclick="closeModal('cartModal')">بستن</button></div>
@@ -141,7 +186,7 @@ function logoutAdmin(){adminToken='';sessionStorage.removeItem('hermitage_admin_
 function togglePassword(id,btn){const el=document.getElementById(id);const show=el.type==='password';el.type=show?'text':'password';btn.textContent=show?'🙈':'👁';btn.setAttribute('aria-label',show?'مخفی کردن رمز':'نمایش رمز')}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function renderCats(){let cats=['همه',...new Set(products.map(p=>p.cat))];document.getElementById('categories').innerHTML=cats.map(c=>`<button class="chip ${active===c?'active':''}" onclick="active=${JSON.stringify(c)};render()">${esc(c)}</button>`).join('')}
-function render(){renderCats();renderFeatured();let q=document.getElementById('search').value.trim().toLowerCase(),list=products.filter(p=>(active==='همه'||p.cat===active)&&(p.name+' '+p.desc).toLowerCase().includes(q));document.getElementById('productCount').textContent=list.length.toLocaleString('fa-IR')+' محصول';document.getElementById('products').innerHTML=list.length?list.map(p=>`<article class="product"><div class="pic">${p.image?`<img src="${p.image}" alt="${esc(p.name)}">`:(p.emoji||'💅')}</div><div class="info"><h3>${esc(p.name)}</h3><div class="desc">${esc(p.desc||'')}</div><div class="price">${money(p.price)}</div><button class="btn" onclick="addCart(${p.id})">افزودن به سبد</button></div></article>`).join(''):'<div class="empty">محصولی پیدا نشد.</div>';document.getElementById('cartCount').textContent=Object.values(cart).reduce((a,b)=>a+b,0).toLocaleString('fa-IR')}
+function render(){renderCats();renderFeatured();let q=document.getElementById('search').value.trim().toLowerCase(),list=products.filter(p=>(active==='همه'||p.cat===active)&&(p.name+' '+p.desc).toLowerCase().includes(q));document.getElementById('productCount').textContent=list.length.toLocaleString('fa-IR')+' محصول';document.getElementById('products').innerHTML=list.length?list.map(p=>`<article class="product"><div class="pic">${p.image?`<img src="${p.image}" alt="${esc(p.name)}">`:(p.emoji||'💅')}</div><div class="info"><h3>${esc(p.name)}</h3><div class="desc">${esc(p.desc||'')}</div><div class="price">${money(p.price)}</div><button class="btn" onclick="addCart(${p.id})">افزودن به سبد</button></div></article>`).join(''):'<div class="empty">محصولی پیدا نشد.</div>';document.getElementById('cartCount').textContent=Object.values(cart).reduce((a,b)=>a+b,0).toLocaleString('fa-IR');updateBottomCart()}
 function renderSlider(){document.getElementById('slider').innerHTML=slides.map((s,i)=>`<div class="slide ${i===slideIndex?'active':''}"><div class="slide-copy"><h2>${esc(s.title)}</h2><p>${esc(s.text)}</p><button class="btn dark" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">مشاهده محصولات</button></div>${s.image?`<img src="${s.image}" alt="">`:`<div class="slide-emoji">${s.emoji||'💅'}</div>`}</div>`).join('');document.getElementById('dots').innerHTML=slides.map((s,i)=>`<button class="dot ${i===slideIndex?'active':''}" aria-label="اسلاید ${i+1}" onclick="goSlide(${i})"></button>`).join('');if(slideTimer)clearInterval(slideTimer);if(slides.length>1)slideTimer=setInterval(()=>goSlide((slideIndex+1)%slides.length),4000)}function goSlide(i){slideIndex=i;renderSlider()}
 function readImage(input,cb){let f=input.files&&input.files[0];if(!f)return;if(!f.type.startsWith('image/')){alert('فقط فایل عکس انتخاب کن.');return}if(f.size>1200000){alert('حجم عکس باید کمتر از ۱.۲ مگابایت باشد.');input.value='';return}let r=new FileReader();r.onload=()=>cb(r.result);r.readAsDataURL(f)}document.getElementById('pImage').addEventListener('change',e=>readImage(e.target,v=>{productImage=v;document.getElementById('pPreview').src=v}));document.getElementById('sImage').addEventListener('change',e=>readImage(e.target,v=>{slideImage=v;document.getElementById('sPreview').src=v}));
 function addSlide(){let title=document.getElementById('sTitle').value.trim(),text=document.getElementById('sText').value.trim();if(!title){alert('عنوان اسلاید را وارد کن.');return}slides.push({title,text,image:slideImage,emoji:'💅'});save();document.getElementById('sTitle').value='';document.getElementById('sText').value='';document.getElementById('sImage').value='';document.getElementById('sPreview').removeAttribute('src');slideImage='';slideIndex=slides.length-1;renderSlider();renderSlideAdmin()}function renderSlideAdmin(){document.getElementById('slideAdmin').innerHTML=slides.map((s,i)=>`<div class="admin-row"><div class="admin-info">${s.image?`<img src="${s.image}">`:'<span style="font-size:28px">💅</span>'}<div><b>${esc(s.title)}</b><small class="hint">${esc(s.text)}</small></div></div><div class="admin-actions"><button onclick="removeSlide(${i})">حذف</button></div></div>`).join('')}function removeSlide(i){if(slides.length<2){alert('حداقل یک اسلاید نگه دار.');return}slides.splice(i,1);slideIndex=0;save();renderSlider();renderSlideAdmin()}
@@ -215,11 +260,46 @@ function showCompare(){
  document.getElementById('productDetail').innerHTML=`<h3>مقایسه محصولات</h3><div class="grid" style="grid-template-columns:repeat(${list.length},minmax(0,1fr))">${list.map(p=>`<article class="product"><div class="pic">${p.image?`<img src="${p.image}">`:p.emoji||'💅'}</div><h3>${esc(p.name)}</h3><p>${esc(p.cat||'')}</p><b>${money(p.price)}</b><p>${esc(p.desc||'')}</p></article>`).join('')}</div>`;
  document.getElementById('productModal').style.display='flex';
 }
+
+let activeReviewProduct=0,activeReviewStars=5;
+function starText(n){return '★★★★★'.slice(0,Math.max(0,Math.min(5,Number(n)||0)))+'☆☆☆☆☆'.slice(0,5-Math.max(0,Math.min(5,Number(n)||0)))}
+async function loadProductReviews(productId){
+ const host=document.getElementById('reviewList');if(!host)return;
+ host.innerHTML='<div class="hint">در حال دریافت دیدگاه‌ها...</div>';
+ try{
+  const r=await fetch('/api/reviews?productId='+encodeURIComponent(productId)),d=await r.json();
+  if(!r.ok)throw Error(d.error||'دریافت دیدگاه‌ها انجام نشد.');
+  const reviews=d.reviews||[],avg=Number(d.average||0);
+  const summary=document.getElementById('reviewSummary');
+  if(summary)summary.innerHTML=`<div class="review-score">${avg?avg.toFixed(1):'—'}</div><div><div class="stars">${starText(Math.round(avg))}</div><b>${reviews.length.toLocaleString('fa-IR')} نظر کاربران</b><div class="review-meta">امتیاز بر اساس دیدگاه‌های ثبت‌شده</div></div>`;
+  host.innerHTML=reviews.length?reviews.map(v=>`<article class="review-card"><div class="stars">${starText(v.rating)}</div><b>${esc(v.name||'خریدار هرمیتاژ')}</b> <span class="review-meta">${v.verified?'خریدار تأییدشده':'کاربر'}</span><p>${esc(v.comment||'')}</p><div class="review-meta">${new Date(v.created_at).toLocaleDateString('fa-IR')}</div></article>`).join(''):'<div class="empty">هنوز نظری برای این محصول ثبت نشده؛ اولین نفری باش که تجربه‌ات رو می‌نویسی.</div>';
+ }catch(e){host.innerHTML='<div class="hint">'+esc(e.message)+'</div>'}
+}
+function chooseReviewStars(n){
+ activeReviewStars=n;
+ document.querySelectorAll('#reviewStars button').forEach((b,i)=>{b.classList.toggle('selected',i<n);b.setAttribute('aria-pressed',i<n?'true':'false')});
+}
+async function submitProductReview(){
+ if(!customerToken){alert('برای ثبت نظر اول وارد حساب کاربری شو.');openAccount();return}
+ const comment=document.getElementById('reviewComment').value.trim(),msg=document.getElementById('reviewMessage');
+ if(!comment){msg.textContent='متن دیدگاهت رو بنویس.';return}
+ msg.textContent='در حال ثبت دیدگاه...';
+ try{
+  const d=await apiPost('/api/reviews',{productId:activeReviewProduct,rating:activeReviewStars,comment},customerToken);
+  msg.textContent='دیدگاهت با موفقیت ثبت شد.';
+  document.getElementById('reviewComment').value='';
+  await loadProductReviews(activeReviewProduct);
+ }catch(e){msg.textContent=e.message}
+}
 function openProduct(id){
  const p=products.find(x=>x.id===id);if(!p)return;
- document.getElementById('productDetail').innerHTML=`<div class="detail-layout"><div class="detail-image">${p.image?`<img src="${p.image}" alt="${esc(p.name)}">`:p.emoji||'💅'}</div><div><div class="detail-meta">هرمیتاژ / ${esc(p.cat||'محصولات')}</div><h2>${esc(p.name)}</h2><p class="detail-meta">${esc(p.desc||'محصول تخصصی لوازم ناخن')}</p><div class="detail-price">${money(p.price)}</div><button class="btn" onclick="addCart(${p.id})">افزودن به سبد خرید</button><div class="product-actions"><button onclick="toggleFavorite(${p.id});openProduct(${p.id})">♡ افزودن به علاقه‌مندی</button><button onclick="toggleCompare(${p.id})">⇄ مقایسه</button></div><p class="detail-meta">ارسال سفارش پس از ثبت و بررسی اطلاعات انجام می‌شود.</p></div></div>`;
+ activeReviewProduct=id;activeReviewStars=5;
+ document.getElementById('productDetail').innerHTML=`<div class="detail-layout"><div class="detail-image">${p.image?`<img src="${p.image}" alt="${esc(p.name)}">`:p.emoji||'💅'}</div><div><div class="detail-meta">هرمیتاژ / ${esc(p.cat||'محصولات')}</div><h2>${esc(p.name)}</h2><p class="detail-meta">${esc(p.desc||'محصول تخصصی لوازم ناخن')}</p><div class="detail-price">${money(p.price)}</div><button class="btn" onclick="addCart(${p.id})">افزودن به سبد خرید</button><div class="product-actions"><button onclick="toggleFavorite(${p.id});openProduct(${p.id})">♡ افزودن به علاقه‌مندی</button><button onclick="toggleCompare(${p.id})">⇄ مقایسه</button></div><p class="detail-meta">ارسال سفارش پس از ثبت و بررسی اطلاعات انجام می‌شود.</p></div></div>
+ <section class="review-area"><h3>نظر کاربران و امتیازدهی</h3><div id="reviewSummary" class="review-summary"><div class="review-score">—</div><div>در حال دریافت امتیازها...</div></div><div id="reviewList"></div><div class="review-form"><b>نظر و امتیاز خودت رو ثبت کن</b><div class="field"><label>امتیاز از ۱ تا ۵ ستاره</label><div class="star-picker" id="reviewStars">${[1,2,3,4,5].map(n=>`<button type="button" class="${n<=5?'selected':''}" onclick="chooseReviewStars(${n})" aria-label="${n} ستاره" aria-pressed="true">★</button>`).join('')}</div></div><textarea id="reviewComment" maxlength="1000" placeholder="تجربه‌ات از کیفیت، بسته‌بندی و خرید این محصول رو بنویس..."></textarea><button class="btn" onclick="submitProductReview()">ثبت دیدگاه</button><p id="reviewMessage" class="hint"></p><small class="hint">ثبت دیدگاه فقط برای کاربران واردشده‌ای ممکنه که این محصول رو با پرداخت تأییدشده خریده باشن. هر کاربر برای هر محصول یک نظر ثبت می‌کنه.</small></div></section>`;
  document.getElementById('productModal').style.display='flex';
+ loadProductReviews(id);
 }
+
 const originalRender = render;
 render = function(){
  renderCats();renderSideCategories();renderFeatured();
@@ -231,10 +311,11 @@ render = function(){
  else if(sort==='expensive')list.sort((a,b)=>b.price-a.price);
  else if(sort==='newest')list.sort((a,b)=>Number(b.id)-Number(a.id));
  document.getElementById('productCount').textContent=list.length.toLocaleString('fa-IR')+' محصول';
- document.getElementById('products').innerHTML=list.length?list.map(p=>`<article class="product"><div class="pic" onclick="openProduct(${p.id})" style="cursor:pointer">${p.image?`<img src="${p.image}" alt="${esc(p.name)}">`:(p.emoji||'💅')}</div><div class="info"><h3 onclick="openProduct(${p.id})" style="cursor:pointer">${esc(p.name)}</h3><div class="desc">${esc(p.desc||'')}</div><div class="price">${money(p.price)}</div><button class="btn" onclick="addCart(${p.id})">افزودن به سبد</button><div class="product-actions"><button class="${favorites.has(p.id)?'active':''}" onclick="toggleFavorite(${p.id})">${favorites.has(p.id)?'♥ ذخیره شد':'♡ علاقه‌مندی'}</button><button class="${compareItems.includes(p.id)?'active':''}" onclick="toggleCompare(${p.id})">⇄ مقایسه</button></div></div></article>`).join(''):'<div class="empty">محصولی پیدا نشد.</div>';
- document.getElementById('cartCount').textContent=Object.values(cart).reduce((a,b)=>a+b,0).toLocaleString('fa-IR');
+ document.getElementById('products').innerHTML=list.length?list.map(p=>`<article class="product" data-product-id="${p.id}"><div class="pic" onclick="openProduct(${p.id})" style="cursor:pointer">${p.image?`<img src="${p.image}" alt="${esc(p.name)}">`:(p.emoji||'💅')}</div><div class="info"><h3 onclick="openProduct(${p.id})" style="cursor:pointer">${esc(p.name)}</h3><div class="desc">${esc(p.desc||'')}</div><div class="price">${money(p.price)}</div><button class="btn" onclick="addCart(${p.id})">افزودن به سبد</button><div class="product-actions"><button class="${favorites.has(p.id)?'active':''}" onclick="toggleFavorite(${p.id})">${favorites.has(p.id)?'♥ ذخیره شد':'♡ علاقه‌مندی'}</button><button class="${compareItems.includes(p.id)?'active':''}" onclick="toggleCompare(${p.id})">⇄ مقایسه</button></div></div></article>`).join(''):'<div class="empty">محصولی پیدا نشد.</div>';
+ document.getElementById('cartCount').textContent=Object.values(cart).reduce((a,b)=>a+b,0).toLocaleString('fa-IR');updateBottomCart();updateBottomCart();
 };
 document.addEventListener('click',e=>{if(!e.target.closest('.mega-search'))hideSuggestions()});
+setTimeout(()=>{updateBottomCart();hydrateProductRatings()},500);
 
 </script>
 <script>
@@ -247,6 +328,33 @@ document.addEventListener('click',e=>{if(!e.target.closest('.mega-search'))hideS
     });
   }
 })();
+
+function bottomGo(where){
+ document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));
+ const map={home:'bottomHome',products:'bottomProducts',cart:'bottomCart',favorites:'bottomFavorites',account:'bottomAccount'};
+ document.getElementById(map[where])?.classList.add('active');
+ if(where==='home')window.scrollTo({top:0,behavior:'smooth'});
+ if(where==='products')document.getElementById('productsSection')?.scrollIntoView({behavior:'smooth'});
+ if(where==='cart')openCart();
+ if(where==='favorites')openFavorites();
+ if(where==='account')openAccount();
+}
+function updateBottomCart(){const n=Object.values(cart||{}).reduce((a,b)=>a+Number(b||0),0);const el=document.getElementById('bottomCartCount');if(el)el.textContent=n.toLocaleString('fa-IR');}
+
+
+const productRatingCache={};
+async function hydrateProductRatings(){
+ const cards=[...document.querySelectorAll('#products .product')];
+ for(let i=0;i<cards.length;i++){
+  const p=products.find(p=>String(p.id)===cards[i].dataset.productId);if(!p)continue;
+  if(productRatingCache[p.id]===undefined){
+   try{const r=await fetch('/api/reviews?productId='+p.id),d=await r.json();productRatingCache[p.id]=d.average?Number(d.average).toFixed(1):'جدید';}
+   catch{productRatingCache[p.id]='';}
+  }
+  const info=cards[i].querySelector('.info');if(info&&!info.querySelector('.product-rating')&&productRatingCache[p.id]){const el=document.createElement('div');el.className='product-rating';el.textContent='★ '+productRatingCache[p.id]+' · امتیاز کاربران';info.insertBefore(el,info.querySelector('.price'));}
+ }
+}
+
 </script>
 
 </body></html>
