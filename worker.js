@@ -1,4 +1,4 @@
-const cors={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Methods":"GET,POST,PUT,OPTIONS","Access-Control-Allow-Headers":"Content-Type,Authorization"};
+const cors={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Methods":"GET,POST,PUT,DELETE,OPTIONS","Access-Control-Allow-Headers":"Content-Type,Authorization"};
 const defaults={products:[{id:1,name:"پودر کاشت ناخن کلیر",price:185000,cat:"مواد کاشت",desc:"پودر شفاف مناسب کاشت حرفه‌ای",emoji:"🫙"},{id:2,name:"ژل بیلدر صورتی",price:245000,cat:"مواد کاشت",desc:"ژل بیلدر با رنگ صورتی ملایم",emoji:"💗"},{id:3,name:"دستگاه UV LED",price:890000,cat:"دستگاه",desc:"دستگاه خشک‌کن ژل ناخن",emoji:"💡"},{id:4,name:"سوهان برقی ناخن",price:1250000,cat:"دستگاه",desc:"مناسب استفاده حرفه‌ای",emoji:"⚙️"},{id:5,name:"قلم کاشت ناخن",price:165000,cat:"ابزار",desc:"قلم کاربردی برای موادگذاری دقیق",emoji:"🖌️"},{id:6,name:"تاپ ژل براق",price:195000,cat:"مواد کاشت",desc:"پوشش نهایی با جلوه براق",emoji:"✨"}],slides:[{title:"محصولات منتخب هرمیتاژ",text:"کیفیت حرفه‌ای برای نتیجه‌ای درخشان",emoji:"💅"},{title:"ابزارهای مورد نیازت اینجاست",text:"از مواد کاشت تا دستگاه و ابزار تخصصی",emoji:"✨"},{title:"زیبایی در جزئیات است",text:"محصول مناسب کارت را پیدا کن",emoji:"🌸"}]};
 const enc=s=>new TextEncoder().encode(s);function b64u(a){let s="";for(const b of a)s+=String.fromCharCode(b);return btoa(s).replace(/=/g,"").replace(/\+/g,"-").replace(/\//g,"_")}
 async function signature(body,secret){const k=await crypto.subtle.importKey("raw",enc(secret),{name:"HMAC",hash:"SHA-256"},false,["sign"]);return b64u(new Uint8Array(await crypto.subtle.sign("HMAC",k,enc(body))))}
@@ -9,27 +9,49 @@ async function hashPassword(password,salt){const key=await crypto.subtle.importK
 function bearer(req){return (req.headers.get("Authorization")||"").replace(/^Bearer\s+/i,"")}
 async function auth(req,env,role){if(!env.SESSION_SECRET)return null;const p=await validToken(bearer(req),env.SESSION_SECRET);return p&&(!role||p.role===role)?p:null}
 function adminList(raw){let a=typeof raw==="string"?JSON.parse(raw):raw;if(a&&Array.isArray(a.users))a=a.users;if(!Array.isArray(a)||!a.length||!a.every(x=>x&&typeof x.username==="string"&&typeof x.password==="string"))throw Error("invalid");return a}
+function getBluPalKey(env){const names=["BLUPAL_API_KEY","BLUPAL_KEY","BLUPAL","BLU_API_KEY","BLUPAY_API_KEY"];for(const name of names){const value=env?.[name];if(typeof value==="string"&&/^blu_(?:live|test)_/.test(value.trim()))return value.trim()}for(const [name,value] of Object.entries(env||{})){if(/BLUPAL|BLUPAY|BLU_API/i.test(name)&&typeof value==="string"&&/^blu_(?:live|test)_/.test(value.trim()))return value.trim()}return ""}
 async function ensurePaymentTable(DB){await DB.prepare(`CREATE TABLE IF NOT EXISTS payment_attempts (id INTEGER PRIMARY KEY AUTOINCREMENT, order_id INTEGER NOT NULL UNIQUE, invoice_id TEXT NOT NULL UNIQUE, amount_irr INTEGER NOT NULL, status TEXT NOT NULL DEFAULT 'PENDING', return_token TEXT NOT NULL UNIQUE, created_at TEXT NOT NULL, paid_at TEXT, payer_name TEXT, payer_card TEXT, payer_bank_name TEXT)`).run()}
+
+async function ensureCommerceTables(DB){
+  await DB.prepare(`CREATE TABLE IF NOT EXISTS wallet_accounts(customer_id INTEGER PRIMARY KEY,balance INTEGER NOT NULL DEFAULT 0,updated_at TEXT NOT NULL)`).run();
+  await DB.prepare(`CREATE TABLE IF NOT EXISTS wallet_transactions(id INTEGER PRIMARY KEY AUTOINCREMENT,customer_id INTEGER NOT NULL,amount INTEGER NOT NULL,kind TEXT NOT NULL,reference TEXT UNIQUE,description TEXT,created_at TEXT NOT NULL)`).run();
+  await DB.prepare(`CREATE TABLE IF NOT EXISTS wallet_topups(id INTEGER PRIMARY KEY AUTOINCREMENT,customer_id INTEGER NOT NULL,invoice_id TEXT NOT NULL UNIQUE,amount_toman INTEGER NOT NULL,amount_irr INTEGER NOT NULL,status TEXT NOT NULL DEFAULT 'PENDING',created_at TEXT NOT NULL,paid_at TEXT)`).run();
+  try{await DB.prepare("ALTER TABLE orders ADD COLUMN status_note TEXT").run()}catch{}
+  try{await DB.prepare("ALTER TABLE orders ADD COLUMN cancelled_at TEXT").run()}catch{}
+}
+
 function paymentReturnPage(){return new Response(`<!doctype html><html lang="fa" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>بازگشت از پرداخت | هرمیتاژ</title><style>body{font-family:Tahoma,Arial;background:#f8f6f7;color:#352831;margin:0;display:grid;min-height:100vh;place-items:center}.card{background:#fff;border:1px solid #eee0e7;border-radius:20px;padding:28px;max-width:480px;margin:18px;line-height:2;text-align:center;box-shadow:0 8px 30px #54243a12}h2{color:#8b174e}.btn{display:inline-block;background:#d12d79;color:white;text-decoration:none;padding:11px 22px;border-radius:10px;margin-top:12px}</style><main class="card"><h2>هرمیتاژ</h2><p>از صفحه پرداخت به فروشگاه برگشتی.</p><p>نتیجه پرداخت فقط پس از تأیید سرور در فهرست سفارش‌های حساب کاربری ثبت می‌شود. اگر مهمان خرید کردی، برای پیگیری با پشتیبانی فروشگاه تماس بگیر.</p><a class="btn" href="/">بازگشت به فروشگاه</a></main></html>`,{status:200,headers:{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-store"}})}
-export default{async fetch(req,env){const u=new URL(req.url);if(req.method==="OPTIONS")return new Response(null,{headers:cors});
+export default{async fetch(req,env){const u=new URL(req.url);const blupalKey=getBluPalKey(env);if(req.method==="OPTIONS")return new Response(null,{headers:cors});
 if(u.pathname==="/payment/blupal/return"&&req.method==="GET")return paymentReturnPage();
 if(u.pathname==="/webhook/blupal"&&req.method==="POST"){
-  if(!env.DB||!env.BLUPAL_API_KEY)return reply({error:"payment service is not configured"},503);
+  if(!env.DB||!blupalKey)return reply({error:"payment service is not configured"},503);
   let payload;try{payload=await req.json()}catch{return reply({error:"invalid payload"},400)}
   const invoiceId=String(payload?.invoice_id||"");
   if(payload?.event!=="payment.completed"||payload?.success!==true||payload?.status!=="PAID"||!/^\d+$/.test(invoiceId))return reply({error:"invalid payment event"},400);
   try{
     await ensurePaymentTable(env.DB);
+    await ensureCommerceTables(env.DB);
     const attempt=await env.DB.prepare("SELECT * FROM payment_attempts WHERE invoice_id=?").bind(invoiceId).first();
-    if(!attempt)return reply({error:"invoice is not linked to a store order"},404);
-    const verify=await fetch("https://blupal.top/api/v1/invoices/"+encodeURIComponent(invoiceId),{headers:{"X-API-Key":env.BLUPAL_API_KEY}});
+    const topup=await env.DB.prepare("SELECT * FROM wallet_topups WHERE invoice_id=?").bind(invoiceId).first();
+    if(!attempt&&!topup)return reply({error:"invoice is not linked to a store order or wallet top-up"},404);
+    const expectedAmount=attempt?Number(attempt.amount_irr):Number(topup.amount_irr);
+    const verify=await fetch("https://blupal.top/api/v1/invoices/"+encodeURIComponent(invoiceId),{headers:{"X-API-Key":blupalKey}});
     const invoice=await verify.json().catch(()=>null);
-    if(!verify.ok||!invoice||invoice.success!==true||String(invoice.invoice_id)!==invoiceId||invoice.status!=="PAID"||Number(invoice.amount)!==Number(attempt.amount_irr))return reply({error:"payment verification failed"},409);
-    const expectedMode=env.BLUPAL_API_KEY.startsWith("blu_test_")?"sandbox":"live";
+    if(!verify.ok||!invoice||invoice.success!==true||String(invoice.invoice_id)!==invoiceId||invoice.status!=="PAID"||Number(invoice.amount)!==expectedAmount)return reply({error:"payment verification failed"},409);
+    const expectedMode=blupalKey.startsWith("blu_test_")?"sandbox":"live";
     if(invoice.mode&&invoice.mode!==expectedMode)return reply({error:"invoice mode mismatch"},409);
     const paidAt=new Date().toISOString();
-    await env.DB.prepare("UPDATE payment_attempts SET status='PAID',paid_at=?,payer_name=?,payer_card=?,payer_bank_name=? WHERE invoice_id=? AND status<>'PAID'").bind(paidAt,payload.payer_name||invoice.payer_name||null,payload.payer_card||invoice.payer_card||null,payload.payer_bank_name||invoice.payer_bank_name||null,invoiceId).run();
-    await env.DB.prepare("UPDATE orders SET status='پرداخت‌شده' WHERE id=?").bind(attempt.order_id).run();
+    if(topup){
+      const changed=await env.DB.prepare("UPDATE wallet_topups SET status='PAID',paid_at=? WHERE invoice_id=? AND status='PENDING'").bind(paidAt,invoiceId).run();
+      if(changed.meta.changes){
+        await env.DB.prepare("INSERT OR IGNORE INTO wallet_accounts(customer_id,balance,updated_at) VALUES(?,0,?)").bind(topup.customer_id,paidAt).run();
+        await env.DB.prepare("UPDATE wallet_accounts SET balance=balance+?,updated_at=? WHERE customer_id=?").bind(topup.amount_toman,paidAt,topup.customer_id).run();
+        await env.DB.prepare("INSERT OR IGNORE INTO wallet_transactions(customer_id,amount,kind,reference,description,created_at) VALUES(?,?,?,?,?,?)").bind(topup.customer_id,topup.amount_toman,"topup","topup:"+invoiceId,"شارژ کیف پول با بلوپال",paidAt).run();
+      }
+    }else{
+      await env.DB.prepare("UPDATE payment_attempts SET status='PAID',paid_at=?,payer_name=?,payer_card=?,payer_bank_name=? WHERE invoice_id=? AND status<>'PAID'").bind(paidAt,payload.payer_name||invoice.payer_name||null,payload.payer_card||invoice.payer_card||null,payload.payer_bank_name||invoice.payer_bank_name||null,invoiceId).run();
+      await env.DB.prepare("UPDATE orders SET status='تأیید شده' WHERE id=? AND status<>'لغو شده'").bind(attempt.order_id).run();
+    }
     return reply({received:true});
   }catch(e){console.error("BluPal webhook failed",e);return reply({error:"webhook processing failed"},503)}
 }
@@ -37,9 +59,33 @@ if(u.pathname==="/api/login"&&req.method==="POST"){if(!env.ADMIN_USERS||!env.SES
 if(u.pathname==="/api/customer/register"&&req.method==="POST"){if(!env.DB||!env.SESSION_SECRET)return reply({error:"اتصال دیتابیس یا تنظیمات نشست سرور کامل نیست."},503);let d;try{d=await req.json()}catch{return reply({error:"اطلاعات نامعتبر است."},400)}if(!d.name?.trim()||!d.phone?.trim()||!d.password||!d.address?.trim())return reply({error:"نام، شماره تماس، رمز و آدرس الزامی هستند."},400);if(d.birthMonth&&(!Number.isInteger(Number(d.birthMonth))||Number(d.birthMonth)<1||Number(d.birthMonth)>12)||d.birthDay&&(!Number.isInteger(Number(d.birthDay))||Number(d.birthDay)<1||Number(d.birthDay)>31))return reply({error:"روز یا ماه تولد معتبر نیست."},400);if(d.password.length<8)return reply({error:"رمز عبور باید حداقل ۸ کاراکتر باشد."},400);if(d.name.length>100||d.phone.length>30||d.address.length>1000)return reply({error:"طول اطلاعات بیش از حد مجاز است."},400);try{const exists=await env.DB.prepare("SELECT id FROM customers WHERE phone=?").bind(d.phone.trim()).first();if(exists)return reply({error:"این شماره تماس قبلاً ثبت‌نام کرده است؛ وارد حساب شو."},409);const salt=b64u(crypto.getRandomValues(new Uint8Array(16))),hash=await hashPassword(d.password,salt);const r=await env.DB.prepare("INSERT INTO customers(name,phone,birth_year,birth_month,birth_day,password_hash,password_salt,default_address,created_at) VALUES(?,?,?,?,?,?,?,?,?)").bind(d.name.trim(),d.phone.trim(),d.birthYear?Number(d.birthYear):null,d.birthMonth?Number(d.birthMonth):null,d.birthDay?Number(d.birthDay):null,hash,salt,d.address.trim(),new Date().toISOString()).run();const id=r.meta.last_row_id;await env.DB.prepare("INSERT INTO customer_addresses(customer_id,address,label,created_at) VALUES(?,?,?,?)").bind(id,d.address.trim(),"آدرس اصلی",new Date().toISOString()).run();return reply({token:await makeToken({sub:String(id),role:"customer",exp:Date.now()+30*24*60*60*1000},env.SESSION_SECRET),profile:{id,name:d.name.trim(),phone:d.phone.trim(),birthYear:d.birthYear||null,birthMonth:d.birthMonth||null,birthDay:d.birthDay||null,address:d.address.trim()}})}catch(e){console.error("customer register failed",e);return reply({error:"ثبت‌نام انجام نشد: "+(e&&e.message?e.message:"خطای دیتابیس")},503)}}
 if(u.pathname==="/api/customer/login"&&req.method==="POST"){if(!env.DB||!env.SESSION_SECRET)return reply({error:"اتصال دیتابیس یا تنظیمات نشست سرور کامل نیست."},503);let d;try{d=await req.json()}catch{return reply({error:"اطلاعات نامعتبر است."},400)}try{const c=await env.DB.prepare("SELECT * FROM customers WHERE phone=?").bind((d.phone||"").trim()).first();if(!c||await hashPassword(d.password||"",c.password_salt)!==c.password_hash)return reply({error:"شماره تماس یا رمز عبور اشتباه است."},401);return reply({token:await makeToken({sub:String(c.id),role:"customer",exp:Date.now()+30*24*60*60*1000},env.SESSION_SECRET),profile:{id:c.id,name:c.name,phone:c.phone,birthYear:c.birth_year,birthMonth:c.birth_month,birthDay:c.birth_day,address:c.default_address,addresses:(await env.DB.prepare("SELECT address,label FROM customer_addresses WHERE customer_id=? ORDER BY id DESC").bind(c.id).all()).results||[]}})}catch{return reply({error:"ورود انجام نشد؛ دیتابیس را بررسی کن."},503)}}
 if(u.pathname==="/api/customer/me"&&req.method==="GET"){const p=await auth(req,env,"customer");if(!p)return reply({error:"نشست حساب معتبر نیست."},401);try{const c=await env.DB.prepare("SELECT id,name,phone,birth_year,birth_month,birth_day,default_address FROM customers WHERE id=?").bind(Number(p.sub)).first();if(!c)return reply({error:"حساب پیدا نشد."},404);return reply({profile:{id:c.id,name:c.name,phone:c.phone,birthYear:c.birth_year,birthMonth:c.birth_month,birthDay:c.birth_day,address:c.default_address,addresses:(await env.DB.prepare("SELECT address,label FROM customer_addresses WHERE customer_id=? ORDER BY id DESC").bind(c.id).all()).results||[]}})}catch{return reply({error:"خطا در دریافت حساب."},503)}}
-if(u.pathname==="/api/customer/orders"&&req.method==="GET"){const p=await auth(req,env,"customer");if(!p)return reply({error:"برای دیدن سفارش‌ها وارد حساب خودت شو."},401);try{const r=await env.DB.prepare("SELECT id,items,total,status,created_at FROM orders WHERE customer_id=? ORDER BY id DESC LIMIT 100").bind(Number(p.sub)).all();const orders=(r.results||[]).map(o=>({id:o.id,items:(()=>{try{return JSON.parse(o.items||"[]").map(i=>({name:String(i.name||"محصول"),qty:Number(i.qty)||1}))}catch{return []}})(),total:o.total,status:o.status,created_at:o.created_at}));return reply({orders})}catch(e){console.error("customer orders failed",e);return reply({error:"دریافت سفارش‌های حساب انجام نشد."},503)}}
+
+if(u.pathname==="/api/wallet"&&req.method==="GET"){
+ const p=await auth(req,env,"customer");if(!p)return reply({error:"برای مشاهده کیف پول وارد حساب شو."},401);
+ try{await ensureCommerceTables(env.DB);const row=await env.DB.prepare("SELECT balance FROM wallet_accounts WHERE customer_id=?").bind(Number(p.sub)).first();return reply({balance:Number(row?.balance||0)})}catch(e){console.error(e);return reply({error:"دریافت کیف پول ناموفق بود."},503)}
+}
+if(u.pathname==="/api/wallet/topup"&&req.method==="POST"){
+ const p=await auth(req,env,"customer");if(!p)return reply({error:"برای شارژ کیف پول وارد حساب شو."},401);
+ if(!blupalKey||!env.DB)return reply({error:"تنظیمات درگاه یا دیتابیس آماده نیست."},503);
+ let d;try{d=await req.json()}catch{return reply({error:"درخواست نامعتبر است."},400)}
+ const amount=Number(d.amount);if(!Number.isSafeInteger(amount)||amount<10000||amount>50000000)return reply({error:"مبلغ شارژ باید بین ۱۰٬۰۰۰ تا ۵۰٬۰۰۰٬۰۰۰ تومان باشد."},400);
+ try{
+  await ensureCommerceTables(env.DB);const amountRial=amount*10;
+  const g=await fetch("https://blupal.top/api/v1/invoices/create",{method:"POST",headers:{"Content-Type":"application/json","X-API-Key":blupalKey},body:JSON.stringify({amount:amountRial})});
+  const x=await g.json().catch(()=>null);if(!g.ok||!x?.success||!x.invoice_id||!x.payment_link)return reply({error:x?.message||"ساخت فاکتور شارژ ناموفق بود."},502);
+  await env.DB.prepare("INSERT INTO wallet_topups(customer_id,invoice_id,amount_toman,amount_irr,status,created_at) VALUES(?,?,?,?,?,?)").bind(Number(p.sub),String(x.invoice_id),amount,amountRial,"PENDING",new Date().toISOString()).run();
+  return reply({ok:true,paymentUrl:x.payment_link,invoiceId:x.invoice_id});
+ }catch(e){console.error("wallet topup failed",e);return reply({error:"شارژ کیف پول انجام نشد."},503)}
+}
+if(u.pathname.startsWith("/api/customer/orders/")&&req.method==="GET"){
+ const p=await auth(req,env,"customer");if(!p)return reply({error:"ورود به حساب لازم است."},401);
+ const id=Number(u.pathname.split("/").pop());if(!Number.isInteger(id)||id<1)return reply({error:"شناسه سفارش نامعتبر است."},400);
+ try{const o=await env.DB.prepare("SELECT id,name,phone,address,postal_code,note,items,total,status,status_note,created_at FROM orders WHERE id=? AND customer_id=?").bind(id,Number(p.sub)).first();if(!o)return reply({error:"سفارش پیدا نشد."},404);return reply({order:{...o,items:JSON.parse(o.items||"[]")}})}catch(e){return reply({error:"دریافت جزئیات سفارش ناموفق بود."},503)}
+}
+
+if(u.pathname==="/api/customer/orders"&&req.method==="GET"){const p=await auth(req,env,"customer");if(!p)return reply({error:"برای دیدن سفارش‌ها وارد حساب خودت شو."},401);try{const r=await env.DB.prepare("SELECT id,items,total,status,status_note,created_at FROM orders WHERE customer_id=? ORDER BY id DESC LIMIT 100").bind(Number(p.sub)).all();const orders=(r.results||[]).map(o=>({id:o.id,items:(()=>{try{return JSON.parse(o.items||"[]").map(i=>({name:String(i.name||"محصول"),qty:Number(i.qty)||1,price:Number(i.price)||0}))}catch{return []}})(),total:o.total,status:o.status,status_note:o.status_note,created_at:o.created_at}));return reply({orders})}catch(e){console.error("customer orders failed",e);return reply({error:"دریافت سفارش‌های حساب انجام نشد."},503)}}
 if(u.pathname==="/api/orders"&&req.method==="POST"){
-  if(!env.BLUPAL_API_KEY)return reply({error:"درگاه پرداخت هنوز روی سرور تنظیم نشده است."},503);
+  if(!blupalKey)return reply({error:"درگاه پرداخت هنوز روی سرور تنظیم نشده است."},503);
   if(!env.DB)return reply({error:"اتصال دیتابیس آماده نیست."},503);
   let d;try{d=await req.json()}catch{return reply({error:"اطلاعات سفارش نامعتبر است."},400)}
   if(!d.name?.trim()||!d.phone?.trim()||!d.address?.trim()||!/^\d{10}$/.test(d.postalCode||"")||!Array.isArray(d.items)||!d.items.length)return reply({error:"نام، تماس، آدرس، کد پستی ۱۰ رقمی و اقلام سفارش الزامی هستند."},400);
@@ -65,10 +111,10 @@ if(u.pathname==="/api/orders"&&req.method==="POST"){
     if(customerId)await env.DB.prepare("INSERT INTO customer_addresses(customer_id,address,label,created_at) VALUES(?,?,?,?)").bind(customerId,d.address.trim(),"آدرس ثبت سفارش",created).run().catch(()=>{});
     let gatewayResponse;
     try{
-      const gateway=await fetch("https://blupal.top/api/v1/invoices/create",{method:"POST",headers:{"Content-Type":"application/json","X-API-Key":env.BLUPAL_API_KEY},body:JSON.stringify({amount:amountRial})});
+      const gateway=await fetch("https://blupal.top/api/v1/invoices/create",{method:"POST",headers:{"Content-Type":"application/json","X-API-Key":blupalKey},body:JSON.stringify({amount:amountRial})});
       gatewayResponse=await gateway.json().catch(()=>null);
       if(!gateway.ok||!gatewayResponse||gatewayResponse.success!==true||!gatewayResponse.invoice_id||!gatewayResponse.payment_link)throw new Error(gatewayResponse?.message||gatewayResponse?.error||"درگاه نتوانست فاکتور پرداخت بسازد.");
-      const expectedMode=env.BLUPAL_API_KEY.startsWith("blu_test_")?"sandbox":"live";
+      const expectedMode=blupalKey.startsWith("blu_test_")?"sandbox":"live";
       if(gatewayResponse.mode&&gatewayResponse.mode!==expectedMode)throw new Error("حالت کلید و فاکتور پرداخت یکسان نیست.");
       const returnToken=crypto.randomUUID();
       await env.DB.prepare("INSERT INTO payment_attempts(order_id,invoice_id,amount_irr,status,return_token,created_at) VALUES(?,?,?,?,?,?)").bind(orderId,String(gatewayResponse.invoice_id),amountRial,"PENDING",returnToken,created).run();
@@ -80,7 +126,25 @@ if(u.pathname==="/api/orders"&&req.method==="POST"){
     }
   }catch(e){console.error("order/payment creation failed",e);return reply({error:"ثبت سفارش یا اتصال به درگاه انجام نشد: "+(e&&e.message?e.message:"خطای دیتابیس")},503)}
 }
-if(u.pathname==="/api/admin/orders"&&req.method==="GET"){const p=await auth(req,env,"admin");if(!p)return reply({error:"دسترسی مدیر لازم است."},401);try{const r=await env.DB.prepare("SELECT id,name,phone,address,postal_code,total,status,created_at FROM orders ORDER BY id DESC LIMIT 100").all();return reply({orders:r.results||[]})}catch{return reply({error:"جدول سفارش‌ها هنوز ساخته نشده است."},503)}}
+if(u.pathname==="/api/admin/orders"&&req.method==="GET"){const p=await auth(req,env,"admin");if(!p)return reply({error:"دسترسی مدیر لازم است."},401);try{await ensureCommerceTables(env.DB);const r=await env.DB.prepare("SELECT id,customer_id,name,phone,address,postal_code,total,status,status_note,created_at FROM orders ORDER BY id DESC LIMIT 300").all();return reply({orders:r.results||[]})}catch{return reply({error:"جدول سفارش‌ها هنوز آماده نیست."},503)}}
+if(u.pathname.startsWith("/api/admin/orders/")&&req.method==="PUT"){
+ const p=await auth(req,env,"admin");if(!p)return reply({error:"دسترسی مدیر لازم است."},401);
+ const id=Number(u.pathname.split("/").pop());let d;try{d=await req.json()}catch{return reply({error:"درخواست نامعتبر است."},400)}
+ if(!Number.isInteger(id)||id<1||!String(d.status||"").trim())return reply({error:"وضعیت سفارش معتبر نیست."},400);
+ try{await ensureCommerceTables(env.DB);const o=await env.DB.prepare("SELECT id,status,total,customer_id FROM orders WHERE id=?").bind(id).first();if(!o)return reply({error:"سفارش پیدا نشد."},404);
+  if(d.status==="لغو شده"&&o.status!=="لغو شده"&&o.customer_id){
+   const paid=await env.DB.prepare("SELECT status FROM payment_attempts WHERE order_id=?").bind(id).first();
+   if(paid?.status==="PAID"){
+    const ref="refund:order:"+id;
+    await env.DB.prepare("INSERT OR IGNORE INTO wallet_accounts(customer_id,balance,updated_at) VALUES(?,0,?)").bind(o.customer_id,new Date().toISOString()).run();
+    const tx=await env.DB.prepare("INSERT OR IGNORE INTO wallet_transactions(customer_id,amount,kind,reference,description,created_at) VALUES(?,?,?,?,?,?)").bind(o.customer_id,Number(o.total),"refund",ref,"بازگشت وجه سفارش لغوشده شماره "+id,new Date().toISOString()).run();
+    if(tx.meta.changes)await env.DB.prepare("UPDATE wallet_accounts SET balance=balance+?,updated_at=? WHERE customer_id=?").bind(Number(o.total),new Date().toISOString(),o.customer_id).run();
+   }
+  }
+  await env.DB.prepare("UPDATE orders SET status=?,status_note=?,cancelled_at=CASE WHEN ?='لغو شده' THEN ? ELSE cancelled_at END WHERE id=?").bind(String(d.status).slice(0,80),String(d.status_note||"").slice(0,2000),String(d.status),new Date().toISOString(),id).run();
+  return reply({ok:true});
+ }catch(e){console.error("admin order update",e);return reply({error:"به‌روزرسانی سفارش ناموفق بود."},503)}
+}
 if(u.pathname==="/api/admin/customers"&&req.method==="GET"){const p=await auth(req,env,"admin");if(!p)return reply({error:"دسترسی مدیر لازم است."},401);try{const r=await env.DB.prepare("SELECT id,name,phone,birth_year,birth_month,birth_day,created_at FROM customers ORDER BY id DESC LIMIT 1000").all();return reply({customers:r.results||[]})}catch(e){console.error("customers list failed",e);return reply({error:"دریافت فهرست مشتریان انجام نشد."},503)}}
 if(u.pathname.startsWith("/api/admin/customers/")&&req.method==="DELETE"){const p=await auth(req,env,"admin");if(!p)return reply({error:"دسترسی مدیر لازم است."},401);const id=Number(u.pathname.split("/").pop());if(!Number.isInteger(id)||id<1)return reply({error:"شناسه مشتری نامعتبر است."},400);try{await env.DB.prepare("UPDATE orders SET customer_id=NULL WHERE customer_id=?").bind(id).run();await env.DB.prepare("DELETE FROM customer_addresses WHERE customer_id=?").bind(id).run();const r=await env.DB.prepare("DELETE FROM customers WHERE id=?").bind(id).run();return r.meta.changes?reply({ok:true}):reply({error:"مشتری پیدا نشد."},404)}catch(e){console.error("customer delete failed",e);return reply({error:"حذف مشتری انجام نشد."},503)}}
 if(u.pathname==="/api/state"&&req.method==="GET"){try{const r=await env.DB.prepare("SELECT data FROM site_state WHERE id=1").first();if(!r){await env.DB.prepare("INSERT OR IGNORE INTO site_state(id,data) VALUES(1,?)").bind(JSON.stringify(defaults)).run();return reply(defaults)}let state=JSON.parse(r.data);if(!state||!Array.isArray(state.products)||state.products.length===0){state={...defaults,...(state||{}),products:defaults.products,slides:Array.isArray(state?.slides)&&state.slides.length?state.slides:defaults.slides};await env.DB.prepare("UPDATE site_state SET data=? WHERE id=1").bind(JSON.stringify(state)).run()}return reply(state)}catch(e){console.error("state read failed",e);return reply({error:"دیتابیس آماده نیست."},503)}}
